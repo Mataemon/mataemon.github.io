@@ -137,11 +137,6 @@
             console.log(stream);
             video_elt.srcObject = stream;
 
-            video_elt.play().then(() => {}).catch((error) => {
-                alert(error);
-                video_elt.setAttribute("controls","controls");
-            });
-
             if(callback) callback();
         });
     }
