@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <style>
+
+        body {
+            background:lightgrey;
+        }
+
+        div {
+            position:relative;
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+        }
+
+        video, .error {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+
+        .error {
+            background:white;
+        }
+
+        video { z-index: 10; }
+    </style>
+</head>
+<body>
+<button>Démarrer test équipement</button>
+<div>
+    <video playsinline autoplay muted></video>
+    <span class="error">Message d'erreur flux video indisponible</span>
+</div>
+<script>
+
+    const video_elt = document.querySelector("video");
+    const btn_elt = document.querySelector("button");
+
+    const stopStream = function(){
+        if(video_elt && video_elt.getAttribute('src')){
+            video_elt.pause();
+            video_elt.removeAttribute('src');
+        }
+
+        if(window.stream){
+            window.stream.getTracks().forEach(track => {
+                track.stop();
+                if(video_elt) video_elt.srcObject.removeTrack(track);
+            });
+        }
+        return true;
+    }
+
+    const getStream = async function(_facingMode, _constraints) {
+        /* If there's already a stream (eg we switch), first stop current stream */
+        stopStream();
+
+        /* Default constraint is 720p */
+        let resolution_height = 720;
+        let resolution_width = 1280;
+
+        let constraints_internal = _constraints || {
+            audio: false,
+            video: {
+                height: {ideal: resolution_height, min: resolution_height},
+                width: {ideal: resolution_width, min: resolution_width}
+            }
+        };
+
+        _facingMode = _facingMode === "environment" ? "environment" : "user";
+        constraints_internal.video.facingMode = _facingMode;
+
+        try {
+            let stream = await navigator.mediaDevices.getUserMedia(constraints_internal);
+            window.stream = stream;
+            window.deviceAccess = true;
+            return stream;
+        } catch (err){
+            window.stream = null;
+            window.deviceAccess = !(err.name === "NotAllowedError" || err.name === "PermissionDeniedError");
+            console.log(err);
+            return false;
+        }
+    }
+
+    const forceMimeType = function(){
+        const mr = new MediaRecorder(window.stream);
+        mr.ondataavailable = function(event){
+            if(mr.state === "inactive"){
+                if(window.forceMimeType === null) window.forceMimeType = true;
+            } else {
+                window.forceMimeType = false;
+                mr.stop();
+            }
+        }
+        mr.start(500);
+    }
+
+    const updateRatio = function(_elements, _width, _height) {
+        if(!Array.isArray(_elements)) _elements = [_elements];
+        if(typeof window.stream != "object") return;
+
+        _width = _width || window.stream.getVideoTracks()[0].getSettings().width;
+        _height = _height || window.stream.getVideoTracks()[0].getSettings().height;
+
+        for(let i = 0; i < _elements.length; i++){
+            let elt = _elements[i];
+            elt.width = _width;
+            elt.style.width = _width + "px";
+            elt.height = _height;
+            elt.style.height = _height + "px";
+        }
+    }
+
+    const INIT_WEBCAM = function(facemode, callback, streamConstraint) {
+        facemode = facemode || "user";
+        streamConstraint = streamConstraint || null;
+        getStream(facemode, streamConstraint).then(function (stream) {
+
+            if (!stream) {
+                if(window.deviceAccess){
+                    alert("INIT_WEBCAM resolution requirements not met");
+                } else {
+                    alert("INIT_WEBCAM no stream found");
+                }
+            }
+
+            forceMimeType();
+
+            updateRatio([video_elt, document.querySelector("div")]);
+            console.log(stream);
+            video_elt.srcObject = stream;
+
+            video_elt.play().then(() => {}).catch((error) => {
+                alert(error);
+                video_elt.setAttribute("controls","controls");
+            });
+
+            if(callback) callback();
+        });
+    }
+
+    const CONSTRAINTS_1080P = {
+        audio: false,
+        video: {
+            height: {ideal: 1080, min: 1080},
+            width: {ideal: 1920, min: 1920}
+        }
+    };
+
+    btn_elt.addEventListener("click", function(e){
+        INIT_WEBCAM("environment", function(){
+            alert("webcam ok");
+        }, null);
+    });
+
+</script>
+</body>
+</html>
