@@ -1,179 +1,160 @@
 <!DOCTYPE html>
-<!--[if IE 7]><html class="ie ie7" lang="fr" class="no-js"> <![endif]-->
-<!--[if IE 8]><html class="ie ie8" lang="fr" class="no-js"> <![endif]-->
-<!--[if !(IE 7) | !(IE 8)  ]><!-->
-<html lang="fr" class="no-js">
-<!--<![endif]-->
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
-    <title>Vérifier votre identité &nbsp;- AR24</title>
-    <link rel="stylesheet" href="https://sandbox.ar24.fr/static/fonts/font-barlow.css">
-    <link rel="stylesheet" href="https://sandbox.ar24.fr/static/fonts/font-montserrat.css">
-    <link rel="stylesheet" href="https://sandbox.ar24.fr/static/min/?f=css/reset.css,css/design-system.css&950"/>
-    <link rel="icon" type="image/png" href="https://sandbox.ar24.fr/static/images/favicon.png">
-    <meta name="theme-color" content="#0000FF">
-    <meta name="description" content=""/>
-    <link rel="stylesheet" href="https://sandbox.ar24.fr/static/min/?f=css/pages/arv-all.css,css/pages/arv-video-record.css,css/pages/arv-kyc-all.css,css/pages/arv-kyc-record.css&1714658980 "/>
-</head>
-<body class="dev guest">
-<header id="header">
-</header>
-<main id="main-content">
-    <style id="js_style"></style>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+	<style>
+	
+	body {
+		background:lightgrey;
+	}
+	
+	 div {
+	   position:relative;
+	   display: inline-block;
+	   width: 50px;
+	   height: 50px;
+	 }
+	 
+	 video, .error {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+	 }
+	 
+	 .error {
+		background:white;
+	 }
+	 
+	 video { z-index: 10; }
+	</style>
+  </head>
+  <body>
+  <button>Démarrer test équipement</button>
+	<div>
+		<video playsinline autoplay muted></video>
+		<span class="error">Message d'erreur flux video indisponible</span>
+	</div>
+	<script>
+	
+	const video_elt = document.querySelector("video");
+	const btn_elt = document.querySelector("button");
+	
+	const stopStream = function(){
+		if(video_elt && video_elt.getAttribute('src')){
+			video_elt.pause();
+			video_elt.removeAttribute('src');
+		}
 
-    <!-- GETTING USER CONSENT ABOUT VIDEO PROCESS EULA AND BIOMETRY -->
-    <section id="legal_consent" class="content">
+		if(window.stream){
+			window.stream.getTracks().forEach(track => {
+				track.stop();
+				if(video_elt) video_elt.srcObject.removeTrack(track);
+			});
+		}
+		return true;
+	}
+	
+	const getStream = async function(_facingMode, _constraints) {
+		/* If there's already a stream (eg we switch), first stop current stream */
+		stopStream();
 
-        <div class="mt-s stick_to_bottom">
-            <div class="notice display-flex mb-m">
-                <img class="icon mr-s" src="https://sandbox.ar24.fr/static/images/icons/shield.svg" style="filter: invert(30%) sepia(54%) saturate(5781%) hue-rotate(226deg) brightness(103%) contrast(96%);"/>
-                <p class="subtitle1" style="font-size: 1.33rem">Vos données sont <em style="color: #385FFA">sécurisées</em> et <em style="color: #385FFA">hébergées</em> en France</p>
-            </div>
-            <div class="align-center">
-                <a href="#" class="btn btn-primary accept-legal">Continuer</a>
-            </div>
-        </div>
-    </section>
-    <section id="id-instructions" class="content" style="display: none">
-        <h2 class="align-center mt-s mb-s fw-700">
-            Préparez-vous à filmer votre <em style="color: #385FFA">pièce d'identité</em>
-        </h2>
-        <p class="secondary-color fw-500 align-center display-flex" style="justify-content: center;">
-            <img class="icon mr-xs" src="https://sandbox.ar24.fr/static/images/icons/check_circle.svg" style="filter: invert(59%) sepia(91%) saturate(4596%) hue-rotate(80deg) brightness(94%) contrast(84%);"/>En bon état, nette et lisible
-        </p>
-        <p class="secondary-color fw-500 align-center display-flex" style="justify-content: center;">
-            <img class="icon mr-xs" src="https://sandbox.ar24.fr/static/images/icons/check_circle.svg" style="filter: invert(59%) sepia(91%) saturate(4596%) hue-rotate(80deg) brightness(94%) contrast(84%);"/>Lumineux, sans reflet et sans étui
-        </p>
-        <div class="align-center  stick_to_bottom">
-            <a href="#" class="btn btn-primary showPopup showRecorder askUsermedia" data-action_popup="front" data-loading="<span class='loader-circle inline mr-xs'></span> Initialisation">Commencer</a>
-        </div>
-    </section>
-    <section id="skipped-challenge" class="content" style="display: none;">
-        <h2 class="align-center mt-m mb-s fw-700">Vous y êtes presque</h2>
-        <p class="align-center">Si vous avez bien effectué toutes les actions du parcours, cliquez sur “Continuer”. Sinon, vous pouvez recommencer.</p>
-        <div class="align-center stick_to_bottom">
-            <a href="#" class="btn btn-ghost actionRetry">Recommencer</a>
-            <a href="#" class="btn btn-primary actionDone mt-s">Continuer</a>
-        </div>
-    </section>
-    <div class="turn-modal" style="display: none">
-        <div>
-            <h5>
-                <img src="https://sandbox.ar24.fr/static/images/icons/warning.svg" alt="Attention">Tournez votre mobile
-            </h5>
-            <p>Ce parcours est uniquement réalisable en mode portrait</p>
-        </div>
-    </div>
-    <div id="recorder">
-        <div id="recorder-container">
-            <div id="recorder-player">
-                <video data-hj-suppress playsinline autoplay muted></video>
-                <span id="loading_screen">
-                            <span class="loader-circle"></span>
-                        </span>
-                <div id="error_recorder" class="fw-500 content align-center">
-                    <h4 class="secondary-color fw-600 mb-m">Désactivez le mode économie d’énergie</h4>
-                    <p class="mb-xl ml-m mr-m" style="line-height: 1.35em;">Nous ne pouvons pas accéder à la caméra lorsque celui-ci est activé. Désactivez-le et recommencez.</p>
-                    <div class="stick_to_bottom">
-                        <a href="#" class="btn btn-primary actionRetry" style="z-index: 100;">Recommencer</a>
-                    </div>
-                </div>
-            </div>
-            <div class="technical_canvas" style="z-index: -1">
-                <canvas data-hj-suppress id="frame"></canvas>
-            </div>
-            <div class="recorder-main p-m">
-                <div id="flash"></div>
-                <div id="recorder_hint">
-                    <div class="rotation_hint">
-                        <img src="https://sandbox.ar24.fr/static/images/icons/screen_rotate.svg" class="mr-s"/>Filmez votre pièce d'identité à plat
-                    </div>
-                    <div class="touch_hint">
-                        <img src="https://sandbox.ar24.fr/static/images/icons/screen_touch.svg" class="mr-s"/>
-                        <span>
-                                    Faites apparaitre votre doigt dans la zone hachurée <strong>à la caméra</strong>
-                                    . <br/>Ne touchez pas votre écran.
-                                </span>
-                    </div>
-                    <div class="face_hint">
-                        Tournez complètement la tête. <br/>Veillez à ce que vos oreilles soient dégagées.
-                    </div>
-                </div>
-                <header>
-                    <p class="recordingNotification mb-s hidden">
-                        <span style="color:red;">&bull;</span>
-                        &nbsp;Capture en cours
-                    </p>
-                    <div id="wrongDirectionWarning" class="notice warning display-flex mb-m hidden">
-                        <img class="icon mr-s" src="https://sandbox.ar24.fr/static/images/icons/alert-triangle.svg"/>
-                        <p class="subtitle1 align-left" style="font-size: 1.33rem">Tournez la tête dans le sens de la flèche</p>
-                    </div>
-                </header>
-                <canvas data-hj-suppress id="face"></canvas>
-                <canvas data-hj-suppress id="id_mask"></canvas>
-                <span class="mask id_mask" style="background-image: url('https://sandbox.ar24.fr/static/images/pages/arv-kyc/mask_document.svg'); opacity:0"></span>
-                <span class="mask face_position">
-                            <span class="face_position_success_icon"></span>
-                        </span>
-                <div class="face hidden">
-                    <div class="face-mask">
-                        <div class="face_direction_icon direction_left hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
-                                <rect width="80" height="80" rx="40" transform="matrix(-1 0 0 1 80 0)" fill="#3970E6"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M56 40C56 38.8954 55.1046 38 54 38H26C24.8954 38 24 38.8954 24 40C24 41.1046 24.8954 42 26 42H54C55.1046 42 56 41.1046 56 40Z" fill="white"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M41.4142 24.5858C40.6332 23.8047 39.3668 23.8047 38.5858 24.5858L24.5858 38.5858C23.8047 39.3668 23.8047 40.6332 24.5858 41.4142L38.5858 55.4142C39.3668 56.1953 40.6332 56.1953 41.4142 55.4142C42.1953 54.6332 42.1953 53.3668 41.4142 52.5858L28.8284 40L41.4142 27.4142C42.1953 26.6332 42.1953 25.3668 41.4142 24.5858Z" fill="white"/>
-                            </svg>
-                        </div>
-                        <div class="face_direction_icon direction_right hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
-                                <rect width="80" height="80" rx="40" fill="#3970E6"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M24 40C24 38.8954 24.8954 38 26 38H54C55.1046 38 56 38.8954 56 40C56 41.1046 55.1046 42 54 42H26C24.8954 42 24 41.1046 24 40Z" fill="white"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M38.5858 24.5858C39.3668 23.8047 40.6332 23.8047 41.4142 24.5858L55.4142 38.5858C56.1953 39.3668 56.1953 40.6332 55.4142 41.4142L41.4142 55.4142C40.6332 56.1953 39.3668 56.1953 38.5858 55.4142C37.8047 54.6332 37.8047 53.3668 38.5858 52.5858L51.1716 40L38.5858 27.4142C37.8047 26.6332 37.8047 25.3668 38.5858 24.5858Z" fill="white"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <svg class="success" viewBox="0 0 740 883" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path class="ellipse" d="M 369.5 24 L 369.5 24 A 69.1 100, 0, 0 1, 369.5 859, L 369.5 859 A 69.1 100, 0, 0 1, 369.5 24" stroke="#6092FF" stroke-width="8"/>
-                    </svg>
-                </div>
-                <span id="actionSuccess"></span>
-                <footer class="align-center">
-                    <span class="countdown hidden fw-600" style="font-size: 4rem;" data-count="3">3</span>
-                    <h3 class="align-center no-custom" style="color:white;">Centrez la face avant</h3>
-                </footer>
-            </div>
-        </div>
-    </div>
-    <div id="recorderpopup" class="overpopup align-center">
-        <header>
-            <h3 class="align-center mb-zero mt-l pl-m pr-m fw-700" style="line-height: 1.35em;">Placez votre document à plat</h3>
-        </header>
-        <div class="content">
-            <p style="line-height: 1.15em;">Posez votre document d’identité à plat devant vous avant de lancer la vidéo</p>
-            <a href="#" class="btn btn-primary actionVideo" data-action="front_center">C'est parti !</a>
-            <a href="#" class="btn btn-primary actionRetry">Recommencer</a>
-        </div>
-    </div>
-</main>
-<script>
-    const FORCE_VIDEO_PLAYBACK = true;
+		/* Default constraint is 720p */
+		let resolution_height = 720;
+		let resolution_width = 1280;
 
-    window.lang = {
-        "kyc_challenge_title_front": "Placez votre document \u00e0 plat",
-        "kyc_challenge_description_front": "Posez votre document d\u2019identit\u00e9 \u00e0 plat devant vous avant de lancer la vid\u00e9o",
-        "kyc_challenge_hint_front": "Centrez la face avant",
-        "kyc_challenge_title_front_zone": "Termin\u00e9",
-        "kyc_challenge_description_front_zone": "",
-        "kyc_challenge_hint_front_zone": ""
-    };
-</script>
-<script src="https://sandbox.ar24.fr/static/min/?f=js/vendor/tensorflow/tensorflow.js,js/vendor/tensorflow/tf-models/face-detection.js,js/vendor/tensorflow/tf-backend-wasm.js"></script>
+		let constraints_internal = _constraints || {
+			audio: false,
+			video: {
+				height: {ideal: resolution_height, min: resolution_height},
+				width: {ideal: resolution_width, min: resolution_width}
+			}
+		};
 
-<script src="https://sandbox.ar24.fr/static/js/pages/arv-check.js?v=1714658980"></script>
-<script src="https://sandbox.ar24.fr/static/js/pages/kyc-utils.filemanager.js?v=1714658980"></script>
-<script src="https://sandbox.ar24.fr/static/js/pages/kyc-utils.mediastream.js?v=1714658980"></script>
-<script src="./js/kyc-record.js"></script>
-</body>
+		_facingMode = _facingMode === "environment" ? "environment" : "user";
+		constraints_internal.video.facingMode = _facingMode;
+
+		try {
+			let stream = await navigator.mediaDevices.getUserMedia(constraints_internal);
+			window.stream = stream;
+			window.deviceAccess = true;
+			return stream;
+		} catch (err){
+			window.stream = null;
+			window.deviceAccess = !(err.name === "NotAllowedError" || err.name === "PermissionDeniedError");
+			console.log(err);
+			return false;
+		}
+	}
+	
+	const forceMimeType = function(){
+		const mr = new MediaRecorder(window.stream);
+		mr.ondataavailable = function(event){
+			if(mr.state === "inactive"){
+				if(window.forceMimeType === null) window.forceMimeType = true;
+			} else {
+				window.forceMimeType = false;
+				mr.stop();
+			}
+		}
+		mr.start(500);
+	}
+	
+	const updateRatio = function(_elements, _width, _height) {
+		if(!Array.isArray(_elements)) _elements = [_elements];
+		if(typeof window.stream != "object") return;
+
+		_width = _width || window.stream.getVideoTracks()[0].getSettings().width;
+		_height = _height || window.stream.getVideoTracks()[0].getSettings().height;
+
+		for(let i = 0; i < _elements.length; i++){
+			let elt = _elements[i];
+			elt.width = _width;
+			elt.style.width = _width + "px";
+			elt.height = _height;
+			elt.style.height = _height + "px";
+		}
+	}
+	
+	const INIT_WEBCAM = function(facemode, callback, streamConstraint) {
+		facemode = facemode || "user";
+		streamConstraint = streamConstraint || null;
+		getStream(facemode, streamConstraint).then(function (stream) {
+
+			if (!stream) {
+				if(window.deviceAccess){
+					alert("INIT_WEBCAM resolution requirements not met");
+				} else {
+					alert("INIT_WEBCAM no stream found");
+				}
+			}
+
+			forceMimeType();
+
+			updateRatio([video_elt, document.querySelector("div")]);
+			console.log(stream);
+			video_elt.srcObject = stream;
+
+			if(callback) callback();
+		});
+	}
+	
+	const CONSTRAINTS_1080P = {
+		audio: false,
+		video: {
+			height: {ideal: 1080, min: 1080},
+			width: {ideal: 1920, min: 1920}
+		}
+	};
+	
+	btn_elt.addEventListener("click", function(e){
+		INIT_WEBCAM("environment", function(){
+            alert("webcam ok");
+        }, null);
+	});
+	
+	</script>
+  </body>
 </html>
