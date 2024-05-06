@@ -164,7 +164,6 @@ let _RESET_DISPLAY_RECORDER = function(){
     document.querySelector("#recorder-container .face_position").classList.add("hidden");
 
     /* Hide all specific visible canvas */
-    ELT_CNV_IDMASK.style.display = "none";
     ELT_CNV_FACE.style.display = "none";
     document.querySelector("#recorder-container .face").classList.add("hidden");
     document.querySelector("#actionSuccess").style.opacity = 0;
