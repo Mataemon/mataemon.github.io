@@ -159,8 +159,35 @@
 </main>
 <script>
     const FORCE_VIDEO_PLAYBACK = true;
+
+    window.lang = [];
+    let current_version = typeof AR24_VERSION !== "undefined" ? AR24_VERSION : Date.now();
+    // Get translation into window.lang array depending on lang
+    let getLang = function(lang, retry){
+        retry = retry || false;
+        let request = new XMLHttpRequest();
+        request.open('GET', 'https://sandbox.ar24.fr/' + lang + '/get/lang?v=' + current_version, false);
+
+        request.onload = function() {
+            if (this.status >= 200 && this.status < 400) {
+                window.lang = JSON.parse(this.responseText);
+            } else {
+                // Fallback to french if issue
+                if(!retry) getLang("fr", true);
+            }
+        };
+
+        request.onerror = function() {
+            // Fallback to french if issue
+            if(!retry) getLang("fr", true);
+        };
+
+        request.send();
+    }
+
+    getLang(document.querySelector("html").getAttribute("lang"));
 </script>
-<script src="https://sandbox.ar24.fr/static/js/lang.js"></script>
+<!--<script src="https://sandbox.ar24.fr/static/js/lang.js"></script>-->
 <script src="https://sandbox.ar24.fr/static/min/?f=js/vendor/tensorflow/tensorflow.js,js/vendor/tensorflow/tf-models/face-detection.js,js/vendor/tensorflow/tf-backend-wasm.js"></script>
 
 <script src="https://sandbox.ar24.fr/static/js/pages/arv-check.js?v=1714658980"></script>
