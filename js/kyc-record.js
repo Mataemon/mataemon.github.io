@@ -59,9 +59,9 @@ Object.defineProperty(HTMLMediaElement.prototype, 'playing', {
 let FACE_MODEL = null;
 (async function(){
     tf.wasm.setWasmPaths({
-        'tfjs-backend-wasm.wasm' : '/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm.wasm',
-        'tfjs-backend-wasm-simd.wasm' : '/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm-simd.wasm',
-        'tfjs-backend-wasm-threaded-simd.wasm' : '/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm-threaded-simd.wasm',
+        'tfjs-backend-wasm.wasm' : 'https://sandbox.ar24.fr/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm.wasm',
+        'tfjs-backend-wasm-simd.wasm' : 'https://sandbox.ar24.fr/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm-simd.wasm',
+        'tfjs-backend-wasm-threaded-simd.wasm' : 'https://sandbox.ar24.fr/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm-threaded-simd.wasm',
     });
     await tf.setBackend('wasm').then((success) => { }, (error) => { console.log(error); });
     const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
@@ -529,7 +529,7 @@ let DRAW_MASK_POSITION_ID_CARD = function(position, type, send_coordinates){
     if(type === "face"){
         maskSpan.style.width = "calc(40% - 16px)";
         maskSpan.style.height = (maskSpan.offsetWidth * 45 / 35) + "px";
-        maskSpan.style.backgroundImage = "url(/static/images/pages/arv-kyc/large_user_icon.svg)";
+        maskSpan.style.backgroundImage = "url(https://sandbox.ar24.fr/static/images/pages/arv-kyc/large_user_icon.svg)";
     } else {
         let width = 125; /* https://en.wikipedia.org/wiki/Passport#Designs_and_format */
         let height = 88; /* https://en.wikipedia.org/wiki/Passport#Designs_and_format */
