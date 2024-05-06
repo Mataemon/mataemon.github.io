@@ -59,9 +59,9 @@ Object.defineProperty(HTMLMediaElement.prototype, 'playing', {
 let FACE_MODEL = null;
 (async function(){
     tf.wasm.setWasmPaths({
-        'tfjs-backend-wasm.wasm' : 'https://sandbox.ar24.fr/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm.wasm',
-        'tfjs-backend-wasm-simd.wasm' : 'https://sandbox.ar24.fr/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm-simd.wasm',
-        'tfjs-backend-wasm-threaded-simd.wasm' : 'https://sandbox.ar24.fr/static/js/vendor/tensorflow/tf-backend-wasm/tfjs-backend-wasm-threaded-simd.wasm',
+        'tfjs-backend-wasm.wasm' : '/js/tfjs-backend-wasm.wasm',
+        'tfjs-backend-wasm-simd.wasm' : '/js/tfjs-backend-wasm-simd.wasm',
+        'tfjs-backend-wasm-threaded-simd.wasm' : '/js/tfjs-backend-wasm-threaded-simd.wasm',
     });
     await tf.setBackend('wasm').then((success) => { }, (error) => { console.log(error); });
     const model = faceDetection.SupportedModels.MediaPipeFaceDetector;
